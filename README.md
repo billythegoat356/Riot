@@ -6,7 +6,7 @@
 
 -----
 
-### <p align="center">🐬 Riot 🐬</p>
+### <p align="center">💎 Riot 💎</p>
 
 <br><br>
 <p align="center">
