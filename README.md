@@ -27,6 +27,8 @@ when the victim start their computer. If the password is changed, Riot will send
 <br><br>
 <strong>+ Fast</strong>
 <br>
+<strong>+ Fully undetectable (FUD)</strong>
+<br>
 <strong>+ Customizable</strong>
 <br>
 <strong>+ Very complete grabber</strong>
