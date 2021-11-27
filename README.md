@@ -40,6 +40,8 @@ when the victim start their computer. If the password is changed, Riot will send
 <img src="https://repository-images.githubusercontent.com/414716027/e3031476-fa45-48e0-8d08-f2c621d5a588" width="250", height="250">
 </p>
 
+<br>
+<strong>- Cannot be compiled to executable (with PyInstaller or Nuitka)</strong>
 <br><br>
 
 -----
